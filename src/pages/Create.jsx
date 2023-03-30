@@ -6,7 +6,7 @@ import { useDogs } from "../components/DogContext"
 export const CreatePage = () => {
 
   const { addDog } = useDogs()
-  const [name, setName] = useState()
+  const [name, setName] = useState('')
   const [done, setDone] = useState(false)
   const add = async () => {
     await addDog({

@@ -6,6 +6,7 @@ export const DogContext = ({ children }) => {
   const [currentDog, setCurrentDog] = useState()
 
   useEffect(() => {
+    if(dogs.length > 0)
     localStorage.setItem(KEY, JSON.stringify(dogs))
   }, [dogs])
 
@@ -38,7 +39,6 @@ export const DogContext = ({ children }) => {
     let data = await response.json()
     dog.img = data.message
     setDogs([...dogs, dog])
-    console.log('??')
   }
 
   return <ctx.Provider value={{
