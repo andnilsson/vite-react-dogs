@@ -6,14 +6,14 @@ export const DogContext = ({ children }) => {
   const [currentDog, setCurrentDog] = useState()
 
   useEffect(() => {
-    if(dogs.length > 0)
-    localStorage.setItem(KEY, JSON.stringify(dogs))
+    if (dogs.length > 0)
+      localStorage.setItem(KEY, JSON.stringify(dogs))
   }, [dogs])
 
   useEffect(() => {
     let initState = localStorage.getItem(KEY)
 
-    setDogs(JSON.parse(initState))
+    setDogs(initState ? JSON.parse(initState) : [])
   }, [])
 
   const setDogById = async (id) => {
