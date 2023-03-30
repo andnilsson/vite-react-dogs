@@ -3,6 +3,7 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import { ListDogs } from './components/ListDogs'
+import { Link } from 'react-router-dom'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -19,6 +20,9 @@ function App() {
       </div>
       <h1>Vite + React</h1>
       <div className="card">
+        <Link to='/create'>
+         <button>Add new dog</button>
+        </Link>
         <ListDogs />
       </div>
 

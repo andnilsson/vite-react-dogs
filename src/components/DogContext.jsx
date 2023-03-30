@@ -2,9 +2,18 @@ import { createContext, useContext, useEffect, useState } from "react"
 
 export const DogContext = ({ children }) => {
 
-  const [dogs, setDogs] = useState(initDogs)
+  const [dogs, setDogs] = useState([])
   const [currentDog, setCurrentDog] = useState()
 
+  useEffect(() => {
+    localStorage.setItem(KEY, JSON.stringify(dogs))
+  }, [dogs])
+
+  useEffect(() => {
+    let initState = localStorage.getItem(KEY)
+
+    setDogs(JSON.parse(initState))
+  }, [])
 
   const setDogById = async (id) => {
     setCurrentDog(dogs.find(x => x.id === id))
@@ -20,15 +29,24 @@ export const DogContext = ({ children }) => {
 
     const updatedDogsArray = [...dogs];
     updatedDogsArray[dogIndex] = { ...updatedDogsArray[dogIndex], status: newStatus };
-    setCurrentDog({...currentDog, status: newStatus})
+    setCurrentDog({ ...currentDog, status: newStatus })
     setDogs(updatedDogsArray)
+  }
+
+  const addDog = async dog => {
+    let response = await fetch('https://dog.ceo/api/breeds/image/random')
+    let data = await response.json()
+    dog.img = data.message
+    setDogs([...dogs, dog])
+    console.log('??')
   }
 
   return <ctx.Provider value={{
     dogs,
     currentDog,
     setDogById,
-    toggleDogStatus
+    toggleDogStatus,
+    addDog
   }}>{children}</ctx.Provider>
 }
 
@@ -37,28 +55,10 @@ const ctx = createContext({
   dogs: [],
   currentDog: undefined,
   setDogById: () => { },
-  toggleDogStatus: () => { }
+  toggleDogStatus: () => { },
+  addDog: async dog => { }
 })
 
 export const useDogs = () => useContext(ctx)
 
-
-const initDogs = [{
-  id: '1',
-  name: 'conny',
-  img: "https://images.dog.ceo/breeds/shihtzu/n02086240_6463.jpg",
-  status: 'home'
-},
-{
-  id: '2',
-  name: 'ronny',
-  img: "https://images.dog.ceo/breeds/terrier-westhighland/n02098286_6123.jpg",
-  status: 'away'
-},
-{
-  id: '3',
-  name: 'sonny',
-  img: "https://images.dog.ceo/breeds/whippet/n02091134_14094.jpg",
-  status: 'away'
-}
-]
+const KEY = '__dogs'
