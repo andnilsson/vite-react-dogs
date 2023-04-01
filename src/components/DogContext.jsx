@@ -41,12 +41,18 @@ export const DogContext = ({ children }) => {
     setDogs([...dogs, dog])
   }
 
+  const removeDog = (dog) => {
+    let updatedDogsArray = dogs.filter(x => x.id !== dog.id)
+    setDogs([...updatedDogsArray])
+  }
+
   return <ctx.Provider value={{
     dogs,
     currentDog,
     setDogById,
     toggleDogStatus,
-    addDog
+    addDog,
+    removeDog
   }}>{children}</ctx.Provider>
 }
 
@@ -56,7 +62,8 @@ const ctx = createContext({
   currentDog: undefined,
   setDogById: () => { },
   toggleDogStatus: () => { },
-  addDog: async dog => { }
+  addDog: async dog => { },
+  removeDog: dog => { }
 })
 
 export const useDogs = () => useContext(ctx)
