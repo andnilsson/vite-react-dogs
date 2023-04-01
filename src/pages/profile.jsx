@@ -4,13 +4,14 @@ import { useDogs } from "../components/DogContext"
 
 export const Profile = () => {
   const { id } = useParams()
-  const { currentDog, setDogById, toggleDogStatus } = useDogs()
+  const { dogs, currentDog, setDogById, toggleDogStatus } = useDogs()
   useEffect(() => {
+    if(dogs.length <1 ) return
     setDogById(id)
-  }, [id])
+  }, [id, dogs])
 
 
-  if (!currentDog) return null
+  if (!currentDog) return <span>Missing {id}</span>
 
   return <>
     <div>
