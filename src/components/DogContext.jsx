@@ -1,9 +1,26 @@
-import { createContext, useContext, useEffect, useState } from "react"
+import { createContext, useContext, useEffect, useMemo, useState } from "react"
 
 export const DogContext = ({ children }) => {
 
   const [dogs, setDogs] = useState([])
   const [currentDog, setCurrentDog] = useState()
+  const [friends, setFriends] = useState([])
+
+  const currentDogWithFriends = useMemo(() => {
+    if (!currentDog) return undefined
+
+    let allFriendKeys = friends.filter(x => x.indexOf(currentDog.id) > -1)
+
+    let friendKeys = allFriendKeys.map(x => x.split(' ')).flat().filter(x => x !== currentDog.id)
+
+    let currentFriends = dogs.filter(x => friendKeys.includes(x.id))
+
+    return {
+      ...currentDog,
+      friends: currentFriends
+    }
+
+  }, [currentDog, friends, dogs])
 
   useEffect(() => {
     if (dogs.length > 0)
@@ -11,13 +28,36 @@ export const DogContext = ({ children }) => {
   }, [dogs])
 
   useEffect(() => {
-    let initState = localStorage.getItem(KEY)
+    if (friends.length > 0)
+      localStorage.setItem(FRIENDSKEY, JSON.stringify(friends))
+  }, [friends])
 
-    setDogs(initState ? JSON.parse(initState) : [])
+  useEffect(() => {
+    let initDogsState = localStorage.getItem(KEY)
+    let initFriendsState = localStorage.getItem(FRIENDSKEY)
+
+    setDogs(initDogsState ? JSON.parse(initDogsState) : [])
+    setFriends(initFriendsState ? JSON.parse(initFriendsState) : [])
   }, [])
 
   const setDogById = async (id) => {
     setCurrentDog(dogs.find(x => x.id === id))
+  }
+
+
+  const toggleFriends = async (dogFriendId) => {
+    if (!currentDog || !dogFriendId) return
+
+    const { id } = currentDog
+    let key = [id, dogFriendId].sort().join(' ')
+    let updatedFriends = [...friends]
+    if (friends.some(x => x === key))
+      updatedFriends = updatedFriends.filter(x => x !== key)
+    else
+      updatedFriends.push(key)
+
+    setFriends(updatedFriends)
+
   }
 
   const toggleDogStatus = () => {
@@ -48,11 +88,12 @@ export const DogContext = ({ children }) => {
 
   return <ctx.Provider value={{
     dogs,
-    currentDog,
+    currentDog: currentDogWithFriends,
     setDogById,
     toggleDogStatus,
     addDog,
-    removeDog
+    removeDog,
+    toggleFriends
   }}>{children}</ctx.Provider>
 }
 
@@ -63,9 +104,11 @@ const ctx = createContext({
   setDogById: () => { },
   toggleDogStatus: () => { },
   addDog: async dog => { },
-  removeDog: dog => { }
+  removeDog: dog => { },
+  toggleFriends: dogFriendId => { }
 })
 
 export const useDogs = () => useContext(ctx)
 
 const KEY = '__dogs'
+const FRIENDSKEY = '__friends'
